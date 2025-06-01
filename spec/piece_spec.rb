@@ -192,3 +192,91 @@ describe Bishop do
     end
   end
 end
+describe Knight do
+  describe "knight: #possible_moves" do
+    let(:board) { Array.new(8) { Array.new(8) { "." } } }
+    subject(:knight) { described_class.new(4, 4, "black", board) }
+    context "empty board with knight" do
+      before do
+        board[4][4] = knight
+      end
+      it "returns 8 moves" do
+        expect(knight.possible_moves.length).to eq(8)
+      end
+      it "contains valid move" do
+        expect(knight.possible_moves.include?([5, 6])).to be true
+        expect(knight.possible_moves.include?([2, 3])).to be true
+      end
+      it "does not contains valid move" do
+        expect(knight.possible_moves.include?([1, 0])).to be false
+      end
+    end
+
+    context "knight on edge" do
+      subject(:knight) { described_class.new(0, 0, "black", board) }
+      before do
+        board[0][0] = knight
+      end
+      it "returns 2 moves" do
+        expect(knight.possible_moves.length).to eq(2)
+      end
+    end
+  end
+end
+describe Queen do
+  describe "queen: #possible_moves" do
+    let(:board) { Array.new(8) { Array.new(8) { "." } } }
+    subject(:queen) { described_class.new(4, 4, "black", board) }
+    context "empty board with queen" do
+      before do
+        board[4][4] = queen
+      end
+      it "returns 27 moves" do
+        expect(queen.possible_moves.length).to eq(27)
+      end
+    end
+
+    context "queen with obstacle in row/column" do
+      subject(:queen) { described_class.new(0, 0, "black", board) }
+      before do
+        board[0][0] = queen
+        board[4][0] = Pawn.new(4, 0, "black", board)
+        board[0][3] = Pawn.new(0, 3, "white", board)
+      end
+      it "returns 14 moves" do
+        expect(queen.possible_moves.length).to eq(14)
+      end
+      it "blocked by white piece" do
+        expect(queen.possible_moves.include?([0, 5])).to be false
+      end
+      it "blocked by black piece" do
+        expect(queen.possible_moves.include?([5, 0])).to be false
+      end
+      it "include blocking piece" do
+        expect(queen.possible_moves.include?([4, 0])).to be true
+        expect(queen.possible_moves.include?([0, 3])).to be true
+      end
+    end
+    context "queen with obstacle in diagonal" do
+      subject(:queen) { described_class.new(4, 4, "black", board) }
+      before do
+        board[4][4] = queen
+        board[2][2] = Pawn.new(2, 2, "black", board)
+        board[2][6] = Pawn.new(2, 6, "white", board)
+      end
+      it "returns 24 moves" do
+        expect(queen.possible_moves.length).to eq(24)
+      end
+      it "blocked by white piece" do
+        expect(queen.possible_moves.include?([0, 0])).to be false
+      end
+      it "blocked by black piece" do
+        expect(queen.possible_moves.include?([1, 7])).to be false
+      end
+      it "include blocking piece" do
+        expect(queen.possible_moves.include?([2, 2])).to be true
+        expect(queen.possible_moves.include?([2, 6])).to be true
+      end
+    end
+  end
+end
