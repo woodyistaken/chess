@@ -1,4 +1,5 @@
 require_relative "board"
+require "yaml"
 
 class Game
   def initialize(board = Board.new)
@@ -7,8 +8,13 @@ class Game
   end
 
   def play
-    loop do
+    if File.exist?("save.txt")
+      puts "Save file exists. Do you want to play saved game?(y/n)"
+      gets.chomp == "y" ? load_game : setup
+    else
       setup
+    end
+    loop do
       loop do
         if @board.check?(@player)
           if @board.checkmate?(@player)
@@ -25,10 +31,48 @@ class Game
           play_round
         end
         @player = @player == "black" ? "white" : "black"
+        save_game
       end
       @board.print_board
       break unless play_again?
+
+      setup
     end
+  end
+
+  def save_game
+    @board.print_board
+    return unless ask_save?
+
+    file = File.open("save.txt", "w")
+    file.puts YAML.dump({ board: @board, player: @player })
+    file.close
+  end
+
+  def load_game
+    state = load
+    @board = state[:board]
+    @player = state[:player]
+  end
+
+  def load
+    yml = File.read("save.txt")
+    YAML.safe_load(yml,
+                   permitted_classes: [Symbol, Board, Piece, Rook, Knight, Pawn, Bishop, Queen, King],
+                   aliases: true,
+                   symbolize_names: true)
+  end
+
+  def ask_save?
+    input = nil
+    loop do
+      puts "Save Game?(y/n)"
+      input = gets.chomp.downcase
+      break if input.length == 1 && %w[y n].include?(input)
+
+      puts "Invalid input"
+    end
+    input == "y"
   end
 
   def play_again?

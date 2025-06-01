@@ -103,8 +103,8 @@ class Board
   def stalemate?(color)
     @board.each do |row|
       row.each do |box|
-        next if (box != ".") || box.is_a?(King)
-        return false if (box != ".") && box.color == color && box.possible_moves.length >= 1
+        next if (box == ".") || box.is_a?(King)
+        return false if box.color == color && box.possible_moves.length >= 1
       end
     end
     get_king_move_squares(color).empty?
