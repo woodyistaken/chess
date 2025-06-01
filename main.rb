@@ -1,5 +1,4 @@
-require_relative "board"
+require_relative "game"
 
-board = Board.new
-board.setup_board
-board.print_board
+game = Game.new
+game.play
